@@ -3,17 +3,33 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 
 ## App.vue
 #### Attributes for ```<slides>``` component
-- [nav-position] Accepts either "right" or "left"
+- [nav-position] Accepts either "right" or "left", default "right"
 - [scripts] Custom callback functions for animating or anything else
+- [slide-duration] A number in seconds for slide transition duration, default 1
 - [id] Optional ID for anchoring
 
 ####  Structure
 ```
 <slides nav-position='right' :scripts='scripts'>
-	<section></section>
-	<section id="id-is-optional"></section>
-	<section></section>
+    <section></section>
+    <section></section>
+
+    # Each slide cycles through the following CSS classes
+
+    # Entering State
+    # "" -> "active" –> "active complete"
+
+    # Leaving State
+    # "active complete" -> "complete" –> "" 
+
+    <section id="id-is-optional" class="active complete">
+        // Your Content
+    </section>
+
+    <section></section>
+    <section></section>
 </slides>
+
 ```
 
 ## scripts.js
@@ -23,19 +39,19 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 ```
 slideStart() {
 
-	// called immediately before the slide begins to move into view
+    // called immediately before the slide begins to move into view
 
-	if (currentSlide.dataset.i === '1') {
-		// do something with slide number 1
-	}
+    if (currentSlide.dataset.i === '1') {
+        // do something with slide number 1
+    }
 
-	// or 
-	if (currentSlide.id === 'some-id') {
-		// do something with an assiged slide id
-	}
+    // or 
+    if (currentSlide.id === 'some-id') {
+        // do something with an assiged slide id
+    }
 },
 slideEnd() {
-	// called at the end of the slide transitioning 
+    // called at the end of the slide transitioning 
 };
 ```
 
