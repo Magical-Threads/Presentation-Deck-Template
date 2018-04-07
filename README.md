@@ -1,5 +1,5 @@
 # Presentation-Deck-Template
-Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js
+Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clone this repo to start off a new project.
 
 ## App.vue
 #### Attributes for ```<slides>``` component
