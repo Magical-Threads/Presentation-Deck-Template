@@ -14,14 +14,6 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
     <section></section>
     <section></section>
 
-    # Each slide cycles through the following CSS classes
-
-    # Entering State
-    # "" -> "active" –> "active complete"
-
-    # Leaving State
-    # "active complete" -> "complete" –> "" 
-
     <section id="id-is-optional" class="active complete">
         // Your Content
     </section>
@@ -29,8 +21,17 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
     <section></section>
     <section></section>
 </slides>
-
 ```
+
+#### CSS State
+Each slide cycles through the following CSS classes
+
+##### Entering State
+    # "" -> "active" –> "active complete"
+
+##### Leaving State
+    # "active complete" -> "complete" –> "" 
+
 
 ## scripts.js
 #### Global variables available in scripts.js
