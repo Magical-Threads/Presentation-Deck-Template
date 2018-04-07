@@ -24,13 +24,13 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 ```
 
 #### CSS State
-Each slide cycles through the following CSS classes
+Each ```<section>``` cycles through the following CSS classes
 
 ##### Entering State
-    # "" -> "active" –> "active complete"
+    "" -> "active" –> "active complete"
 
 ##### Leaving State
-    # "active complete" -> "complete" –> "" 
+    "active complete" -> "complete" –> "" 
 
 
 ## scripts.js
