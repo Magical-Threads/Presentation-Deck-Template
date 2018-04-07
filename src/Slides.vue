@@ -33,16 +33,20 @@ export default {
         scripts: {
             type:           Function,
             default:        function() { }
+        },
+        slideDuration: {
+            type:           Number,
+            default:        1
         }
     },
     data() {
         return {
             ids:            null,
             isAnimating:    false,
-            slideDuration:  1,
             currentSlide:   null,
             currentIndex:   0,
             activeClass:    'active',
+            completeClass:  'complete',
             keyCodes:       { UP: 38, DOWN: 40 }
         };
     },
@@ -77,13 +81,6 @@ export default {
         this.goToSlide(this.currentSlide);
     },
     methods: {
-
-        // Create IDs for creation of the navigation links
-        createIds(slide, index) {
-
-            // If there is an ID on the section use the explicit ID, otherwise use the index 
-            return slide.id ? ('#' + slide.id) : ('#' + (index + 1).toString());
-        },
         addEvents() {
 
             // Add keyboard events
@@ -93,8 +90,8 @@ export default {
             window.addEventListener('resize', this.debounce(() => this.onResize(), 250));
 
             // Add mouse wheel events
-            window.addEventListener('mousewheel', this.throttle((event) => this.onMouseWheel(event), 10));
-            window.addEventListener('DOMMouseScroll', this.throttle((event) => this.onMouseWheel(event), 10)); // FF
+            window.addEventListener('mousewheel', this.throttle(event => this.onMouseWheel(event), 10));
+            window.addEventListener('DOMMouseScroll', this.throttle(event => this.onMouseWheel(event), 10)); // FF
 
             // Add click events for buttons
             this.slideGoPrev.forEach(button => button.addEventListener('click', this.goToPrevSlide));
@@ -103,7 +100,7 @@ export default {
             // Add touch events for devices
             const container = new Hammer(this.slidesContainer);
             container.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-            container.on('panleft panright panup pandown tap press', (event) => {
+            container.on('panleft panright panup pandown tap press', event => {
                 if (event.type === 'panup') this.goToNextSlide();
                 if (event.type === 'pandown') this.goToPrevSlide();
             });
@@ -123,8 +120,7 @@ export default {
             }
         },
         onMouseWheel(event) {
-            event.preventDefault();
-
+            
             // Normalize event wheel delta
             const delta = event.wheelDelta / 30 || -event.detail;
 
@@ -158,32 +154,40 @@ export default {
                 // Sliding to current slide, with callbacks
                 TweenMax.to(this.slidesContainer, this.slideDuration, {
                     onStart:            this.onSlideStart,
-                    onStartParams:      [this.currentSlide, this.slideDuration, this.currentIndex],
+                    onStartParams:      [ this.currentIndex, this.currentSlide, this.slideDuration ],
+                    onComplete:         this.onSlideEnd,
+                    onCompleteParams:   [ this.currentIndex, this.currentSlide ],
                     scrollTo:           { y: this.pageHeight * this.currentIndex },
                     ease:               Power4.easeInOut,
-                    onComplete:         this.onSlideEnd
                 });
             }
         },
-        onSlideStart(currentSlide, slideDuration, currentIndex) {
+        onSlideStart(currentIndex, currentSlide, slideDuration) {
 
-            // Update the nav class css
-            this.updateActiveClass(currentIndex);
+            // Update the active class for the slides and nav
+            this.updateSlideClass(this.activeClass, currentIndex);
 
             // Initialize the aniamtions and pass in the current slide and duration
+            // And assign the function reference to "slideScripts", from the scripts.js file
             this.slideScripts = this.scripts({ currentSlide, slideDuration });
             this.slideScripts.slideStart();
-            return 1;
         },
-        onSlideEnd() {
+        onSlideEnd(currentIndex, currentSlide) {
+
+            // When the slide finishes moving, add the "complete" css class to the slides and nav
+            this.updateSlideClass(this.completeClass, currentIndex);
+
+            // Call the scriptsEnd() function from the scripts.js file
             this.slideScripts.slideEnd();
+
+            // Set the animating flag to flase
             this.isAnimating = false;
+
+            // Update the window hash url
             window.location.hash = '#' + this.currentSlide.id;
         },
-        onResize(event) {
-            const currentSlide = this.currentSlide;
+        onResize() {
             const newPageHeight = window.innerHeight;
-
             if (this.pageHeight !== newPageHeight) {
                this.pageHeight = newPageHeight;
 
@@ -196,6 +200,8 @@ export default {
                 });
             }
         },
+
+        // debounce() taken from Underscore.js
         debounce(func, wait, immediate) {
             let timeout;
             return function() {
@@ -220,8 +226,17 @@ export default {
                 }
             };
         },
+
+        // Remove the "#" and "-" characters for navigation links
         navSlideName(id) {
             return id.replace(/#/gmi, '').replace(/-/gmi, ' ');
+        },
+
+        // Create IDs for creation of the navigation links
+        createIds(slide, index) {
+
+            // If there is an ID on the section use the explicit ID, otherwise use the index 
+            return slide.id ? ('#' + slide.id) : ('#' + (index + 1).toString());
         },
         onNavLinkClick(event) {
             event.preventDefault();
@@ -229,8 +244,7 @@ export default {
             const slide = this.slides[id];
             this.goToSlide(slide);
         },
-        updateActiveClass(slideIndex) {
-            const className = this.activeClass;
+        updateSlideClass(className, slideIndex) {
 
             // Remove the class from all the links
             [this.navLinks, this.slides].forEach(removeClass);
