@@ -10,7 +10,7 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 
 ####  Structure
 ```
-<slides nav-position='right' :scripts='scripts'>
+<slides nav-position='right' :scripts='scripts' :slide-duration='1'>
     <section></section>
     <section></section>
 
