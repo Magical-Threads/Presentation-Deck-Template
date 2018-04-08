@@ -1,6 +1,17 @@
 <template>
     <main id='slides'>
         <nav :class='navClass'>
+            <svg class='nav-icon' viewBox='0 0 48 48' @click='onNavIconClick'>
+                <g class='menu'>
+                    <path d='M45,22H3c-0.552,0-1,0.448-1,1v2c0,0.552,0.448,1,1,1h42c0.552,0,1-0.448,1-1v-2 C46,22.448,45.552,22,45,22z'></path>
+                    <path d='M45,8H3C2.448,8,2,8.448,2,9v2c0,0.552,0.448,1,1,1h42c0.552,0,1-0.448,1-1V9C46,8.448,45.552,8,45,8z'></path>
+                    <path d='M45,36H25c-0.552,0-1,0.448-1,1v2c0,0.552,0.448,1,1,1h20c0.552,0,1-0.448,1-1v-2C46,36.448,45.552,36,45,36 z'></path>
+                </g>
+                <g class='close'>
+                    <line x1='38' y1='10' x2='10' y2='38'></line>
+                    <line x1='38' y1='38' x2='10' y2='10'></line>
+                </g>
+            </svg>
             <ul ref='slidesNav'>
                 <li v-for='(id, index) in ids' :key='index'>
                     <a :href='id' :data-i='index + 1' @click='onNavLinkClick' class='nav-slide-name'>
@@ -236,13 +247,21 @@ export default {
         createIds(slide, index) {
 
             // If there is an ID on the section use the explicit ID, otherwise use the index 
-            return slide.id ? ('#' + slide.id) : ('#' + (index + 1).toString());
+            return slide.id ? ('#' + slide.id) : ('Slide ' + (index + 1).toString());
+        },
+        onNavIconClick() {
+            this.$el.classList.toggle('active-mobile-menu');
         },
         onNavLinkClick(event) {
             event.preventDefault();
+
+            // Get the ID from the anchor link and goToSlide()
             const id = event.target.dataset.i - 1;
             const slide = this.slides[id];
             this.goToSlide(slide);
+
+            // Remove the active class to close the mobile menu and reset everything
+            this.$el.classList.remove('active-mobile-menu');
         },
         updateSlideClass(className, slideIndex) {
 
@@ -277,6 +296,10 @@ export default {
         width: 100vw;
         height: 100vh;
         font: normal 1.15vw/1.70vw Sans-serif;
+        @media (max-width: 767px) {
+            font-size: 3vw;
+            line-height: 1.35;
+        }
     }
     
     #slides nav + article {
@@ -305,11 +328,22 @@ export default {
         justify-content: center;
         width: 6vw;
         user-select: none;
+        @media (max-width: 767px) {
+            pointer-events: none;
+            background: transparent;
+            color: white;
+            right: 0;
+            left: 0;
+            width: 100%;
+        }
         &.position-right {
             right: 0;
             text-align: right;
             li .nav-slide-name {
                 right: 85%;
+                @media (max-width: 767px) {
+                    right: initial;
+                }
             }
             li .nav-slide-name {
                 justify-content: flex-end;
@@ -324,90 +358,170 @@ export default {
                 justify-content: flex-start;
             }
         }
-        ul {
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-        li {
-            width: 100%;
-            display: block;
-            margin: 0;
-            height: 2vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        li .nav-indicator {
-            width: 1vw;
-            height: 1vw;
-            background: black;
-            text-transform: capitalize;
-            display: block;
-            border-radius: 100%;
-            border: 2px solid black;
-            font-size: 0;
+        .nav-icon {
             position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        li.active .nav-indicator {
-            border-color: $color-primary;
-            background: white;
-        }
-        li.active:hover .nav-indicator {
-            border-color: $color-primary;
-            background: white;
-        }
-        li:hover .nav-indicator {
-            background: white;
-        }
-        li .nav-slide-name {
-            position: absolute;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            text-transform: capitalize;
-            transition: 0.15s ease-in 0s;
-            opacity: 0;
-            span {
-                background: black;
-                border: 2px solid transparent;
-                border-radius: 2px;
-                color: white;
-                padding: 0.6em 1em;
+            fill: black;
+            width: 10vw;
+            top: 5vw;
+            right: 5vw;
+            pointer-events: all;
+            display: none;
+            @media (max-width: 767px) {
                 display: block;
-                pointer-events: none;
-                font-size: 0.85em;
-                font-weight: bold;
+            }
+            line {
+                stroke: white;
+                stroke-width: 4;
+                stroke-linecap: square;
+                stroke-miterlimit: 10;
+                stroke-linejoin: miter;
+            }
+            .close {
+                display: none;
             }
         }
-         li:hover .nav-slide-name {
-            transition: 0.15s ease-out 0s;
-            opacity: 1; 
-        }
-        .nav-slide-name:active span {
-            background: rgba(black, 0.5);
-            color: black;
-        }
-        ul li a {
-            width: 100%;
-            height: inherit;
-            text-decoration: none;
-            color: inherit;
+    }
+
+    nav ul {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        @media (max-width: 767px) {
+            height: 100%;
+            background: $color-primary;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            transform: translateX(100%);
+            transition: transform 0.15s ease-in;
         }
     }
+
+    /* Active Mobile Menu */
+    .active-mobile-menu nav {
+        pointer-events: all;
+    }
+
+    .active-mobile-menu .nav-icon {
+        fill: white;
+        z-index: 1;
+        .menu { display: none; }
+        .close { display: block; }
+    }
+
+    .active-mobile-menu nav ul {
+        transform: translateX(0);
+        transition: transform 0.3s ease-out;
+    }
     
+    nav ul li {
+        width: 100%;
+        display: block;
+        margin: 0;
+        height: 2vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        @media (max-width: 767px) {
+            height: auto;
+            padding: 0 10vw;
+        }
+    }
+
+    nav ul li .nav-indicator {
+        width: 5px;
+        height: 5px;
+        background: black;
+        text-transform: capitalize;
+        display: block;
+        border-radius: 100%;
+        border: 2px solid black;
+        font-size: 0;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        @media (max-width: 767px) {
+            display: none;
+        }
+    }
+
+    nav ul li.active .nav-indicator {
+        border-color: $color-primary;
+        background: transparent;
+        width: 15px;
+        height: 15px;
+    }
+
+    nav ul li.active:hover .nav-indicator {
+        border-color: gray;
+        background: gray;
+    }
+
+    nav ul li:hover .nav-indicator {
+        background: gray;
+        border-color: gray;
+    }
+
+    nav ul li .nav-slide-name {
+        position: absolute;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        text-transform: capitalize;
+        transition: 0.15s ease-in 0s;
+        opacity: 0;
+        @media (max-width: 767px) {
+            opacity: 1;
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+        span {
+            background: black;
+            border: 2px solid transparent;
+            border-radius: 2px;
+            color: white;
+            padding: 0.3em 0.5em;
+            display: block;
+            pointer-events: none;
+            font-size: 0.85em;
+            font-weight: bold;
+            @media (max-width: 767px) {
+                font-size: 4vw;
+                background: none;
+                padding: 0;
+            }
+        }
+    }
+
+    nav ul li:hover .nav-slide-name {
+        transition: 0.15s ease-out 0s;
+        opacity: 1; 
+    }
+
+    .nav-slide-name:active span {
+        background: rgba(black, 0.5);
+    }
+
+    nav ul li a {
+        width: 100%;
+        height: inherit;
+        text-decoration: none;
+        color: inherit;
+    }
+
     button {
         background: transparent;
-        border: 2px solid $color-primary;
+        border: 1px solid $color-primary;
         color: $color-primary;
         border-radius: 2px;
         font: inherit;
         font-weight: bold;
         padding: 0.4em 1em;
         cursor: pointer;
+        margin: 0 0 1em 0;
         &:hover {
             color: white;
             background: $color-primary;
