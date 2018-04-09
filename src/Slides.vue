@@ -12,6 +12,17 @@
                     <line x1='38' y1='38' x2='10' y2='10'></line>
                 </g>
             </svg>
+            <svg viewBox='0 0 48 48' class='nav-grid-view' @click='onNavGridClick'>
+                <path d='M10,1H2C1.447,1,1,1.447,1,2v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1V2C11,1.447,10.553,1,10,1z'></path>
+                <path d='M10,19H2c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1v-8C11,19.447,10.553,19,10,19z'></path>
+                <path d='M10,37H2c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1v-8 C11,37.447,10.553,37,10,37z'></path>
+                <path d='M28,1h-8c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1V2C29,1.447,28.553,1,28,1z'></path>
+                <path d='M28,19h-8c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1v-8 C29,19.447,28.553,19,28,19z'></path>
+                <path d='M28,37h-8c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1v-8C29,37.447,28.553,37,28,37z '></path>
+                <path d='M46,1h-8c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1V2 C47,1.447,46.553,1,46,1z'></path>
+                <path d='M46,19h-8c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1v-8C47,19.447,46.553,19,46,19z '></path>
+                <path d='M46,37h-8c-0.553,0-1,0.447-1,1v8c0,0.553,0.447,1,1,1h8c0.553,0,1-0.447,1-1v-8C47,37.447,46.553,37,46,37z '></path>
+            </svg>
             <ul ref='slidesNav'>
                 <li v-for='(id, index) in ids' :key='index'>
                     <a :href='id' :data-i='index + 1' @click='onNavLinkClick' class='nav-slide-name'>
@@ -38,27 +49,31 @@ export default {
     name: 'Slides',
     props: {
         navPosition: {
-            type:           String,
-            default:        'right' // values: [ 'left', 'right' ]
+            type:                   String,
+            default:                'right' // values: [ 'left', 'right' ]
         },
         scripts: {
-            type:           Function,
-            default:        function() { }
+            type:                   Function,
+            default:                function() { }
         },
         slideDuration: {
-            type:           Number,
-            default:        1
+            type:                   Number,
+            default:                1
         }
     },
     data() {
         return {
-            ids:            null,
-            isAnimating:    false,
-            currentSlide:   null,
-            currentIndex:   0,
-            activeClass:    'active',
-            completeClass:  'complete',
-            keyCodes:       { UP: 38, DOWN: 40 }
+            ids:                null,
+            isAnimating:        false,
+            currentSlide:       null,
+            currentIndex:       0,
+            activeClass:        'active',
+            completeClass:      'complete',
+            activeMenuClass:    'active-mobile-menu',
+            activeGridClass:    'active-grid-menu',
+            keyCodes:           { UP: 38, DOWN: 40 },
+            slideEase:          Sine.easeInOut,
+            localDuration:      this.slideDuration
         };
     },
     computed: {
@@ -87,9 +102,7 @@ export default {
         const initialId         = storedId > this.slides.length ? this.slides.length - 1 : storedId;
         this.currentSlide       = this.slides[initialId];
         
-        this.addSlideIndex();
-        this.addEvents();
-        this.goToSlide(this.currentSlide);
+        this.addSlideIndex().addEvents().goToSlide(this.currentSlide);
     },
     methods: {
         addEvents() {
@@ -108,6 +121,9 @@ export default {
             this.slideGoPrev.forEach(button => button.addEventListener('click', this.goToPrevSlide));
             this.slideGoNext.forEach(button => button.addEventListener('click', this.goToNextSlide));
 
+            // Add click events for grid view
+            this.slides.forEach(slide => slide.addEventListener('click', this.onSlideGridClick));
+
             // Add touch events for devices
             const container = new Hammer(this.slidesContainer);
             container.get('pan').set({ direction: Hammer.DIRECTION_ALL });
@@ -115,12 +131,16 @@ export default {
                 if (event.type === 'panup') this.goToNextSlide();
                 if (event.type === 'pandown') this.goToPrevSlide();
             });
+
+            return this;
         },
 
         // Add an index counter to each slide
         addSlideIndex() {
             this.slides.forEach((slide, index) => slide.setAttribute('data-i', index + 1));
+            return this;
         },
+
         onKeyDown(event) {
             const keyPress = event.keyCode;
             if (keyPress === this.keyCodes.UP) {
@@ -130,8 +150,12 @@ export default {
                 this.goToNextSlide();
             }
         },
+
         onMouseWheel(event) {
-            
+
+            // If grid view is active, abort
+            if (this.$el.classList.contains(this.activeGridClass)) return;
+           
             // Normalize event wheel delta
             const delta = event.wheelDelta / 30 || -event.detail;
 
@@ -139,17 +163,23 @@ export default {
             if      (delta < -1) this.goToNextSlide();
             else if (delta >  1) this.goToPrevSlide();
         },
+
         goToPrevSlide() {
             if (this.currentSlide.previousElementSibling) {
                 this.goToSlide(this.currentSlide.previousElementSibling);
             }
         },
+
         goToNextSlide() {
             if (this.currentSlide.nextElementSibling) {
                 this.goToSlide(this.currentSlide.nextElementSibling);
             }
         },
-        goToSlide(slide) {
+
+        goToSlide(slide, duration) {
+
+            // Temporary fix for zero slide duration
+            duration = duration === undefined ? this.slideDuration : duration;
 
             // If the slides are not animating and there's a slide
             if (!this.isAnimating && slide) {
@@ -161,18 +191,21 @@ export default {
                 // Set the slide name to the local storage for remembering the last slide position
                 // on a window refresh
                 window.localStorage.setItem('_slideID', this.currentSlide.dataset.i);
-                
+
                 // Sliding to current slide, with callbacks
-                TweenMax.to(this.slidesContainer, this.slideDuration, {
+                TweenMax.to(this.slidesContainer, duration, {
                     onStart:            this.onSlideStart,
                     onStartParams:      [ this.currentIndex, this.currentSlide, this.slideDuration ],
                     onComplete:         this.onSlideEnd,
                     onCompleteParams:   [ this.currentIndex, this.currentSlide ],
                     scrollTo:           { y: this.pageHeight * this.currentIndex },
-                    ease:               Power4.easeInOut,
+                    ease:               this.slideEase,
                 });
             }
+
+            return this;
         },
+
         onSlideStart(currentIndex, currentSlide, slideDuration) {
 
             // Update the active class for the slides and nav
@@ -183,6 +216,7 @@ export default {
             this.slideScripts = this.scripts({ currentSlide, slideDuration });
             this.slideScripts.slideStart();
         },
+
         onSlideEnd(currentIndex, currentSlide) {
 
             // When the slide finishes moving, add the "complete" css class to the slides and nav
@@ -197,18 +231,102 @@ export default {
             // Update the window hash url
             window.location.hash = '#' + this.currentSlide.id;
         },
+
         onResize() {
             const newPageHeight = window.innerHeight;
             if (this.pageHeight !== newPageHeight) {
-               this.pageHeight = newPageHeight;
+                this.pageHeight = newPageHeight;
+                this.resize();
+            }
+        },
 
-                TweenMax.set([this.slidesContainer, this.slides], {
-                    height: this.pageHeight + 'px'
-                });
+        resize() {
+            TweenMax.set([this.slidesContainer, this.slides], {
+                height: this.pageHeight + 'px'
+            });
+            TweenMax.set(this.slidesContainer, {
+                scrollTo: { y: this.pageHeight * this.currentIndex }
+            });
+        },
 
-                TweenMax.set(this.slidesContainer, {
-                    scrollTo: { y: this.pageHeight * this.currentIndex }
-                });
+        // Remove the "#" and "-" characters for navigation links
+        navSlideName(id) {
+            return id.replace(/#/gmi, '').replace(/-/gmi, ' ');
+        },
+
+        // Create IDs for creation of the navigation links
+        createIds(slide, index) {
+
+            // If there is an ID on the section use the explicit ID, otherwise use the index 
+            return slide.id ? ('#' + slide.id) : ('Slide ' + (index + 1).toString());
+        },
+
+        onNavIconClick() {
+            this.$el.classList.toggle(this.activeMenuClass);
+        },
+
+        onSlideGridClick(event) {
+            
+            // If not in grid view, return, abort
+            if (!this.$el.classList.contains(this.activeGridClass)) return;
+            event.target.classList.add([this.activeClass, this.completeClass]);
+            this.goToSlide(event.target, 0.001).destroyGrid();
+        },
+
+        onNavGridClick() {
+            this.$el.classList.contains(this.activeGridClass) ? this.destroyGrid() : this.createGrid();
+        },
+
+        createGrid() {
+            var count     = this.slides.length;
+            var cols      = Math.ceil(Math.sqrt(count));
+            var rows      = Math.round(Math.sqrt(count));
+            var size      = 100/cols;
+            var scale     = size/100;
+
+            this.$el.classList.add(this.activeGridClass);
+            this.slides.forEach(slide => {
+                slide.style.height = this.pageHeight + 'px';
+                slide.style.transform = `scale(${scale})`;
+            });
+            this.slidesContainer.style.gridTemplateColumns  = `repeat(${cols}, ${size}%)`;
+            this.slidesContainer.style.gridTemplateRows     = `repeat(${rows}, ${size}%)`;
+        },
+
+        destroyGrid() {
+            this.$el.classList.remove(this.activeGridClass);    
+            this.slides.forEach(slide => {
+                slide.style.transform = `scale(1)`;
+                slide.style.position = 'relative';
+                slide.style.zIndex = 'initial';
+            });
+        },  
+
+        onNavLinkClick(event) {
+            event.preventDefault();
+
+            // Get the ID from the anchor link and goToSlide()
+            const id = event.target.dataset.i - 1;
+            const slide = this.slides[id];
+            this.goToSlide(slide);
+
+            // Remove the active class to close the mobile menu and reset everything
+            this.$el.classList.remove(this.activeMenuClass);
+        },
+
+        updateSlideClass(className, slideIndex) {
+
+            // Remove the class from all the links
+            [this.navLinks, this.slides].forEach(removeClass);
+
+            // Then add the class to the active link
+            [this.navLinks, this.slides].forEach(addClass);
+
+            function removeClass(set) {
+                set.forEach(item => item.classList.remove(className));
+            }
+            function addClass(set) {
+                set[slideIndex].classList.add(className);
             }
         },
 
@@ -227,6 +345,7 @@ export default {
                 if (callNow) func.apply(this, args);
             };
         },
+
         throttle(func, wait) {
             let throttle;
             return function() {
@@ -236,47 +355,6 @@ export default {
                     setTimeout(() => throttle = false, wait);
                 }
             };
-        },
-
-        // Remove the "#" and "-" characters for navigation links
-        navSlideName(id) {
-            return id.replace(/#/gmi, '').replace(/-/gmi, ' ');
-        },
-
-        // Create IDs for creation of the navigation links
-        createIds(slide, index) {
-
-            // If there is an ID on the section use the explicit ID, otherwise use the index 
-            return slide.id ? ('#' + slide.id) : ('Slide ' + (index + 1).toString());
-        },
-        onNavIconClick() {
-            this.$el.classList.toggle('active-mobile-menu');
-        },
-        onNavLinkClick(event) {
-            event.preventDefault();
-
-            // Get the ID from the anchor link and goToSlide()
-            const id = event.target.dataset.i - 1;
-            const slide = this.slides[id];
-            this.goToSlide(slide);
-
-            // Remove the active class to close the mobile menu and reset everything
-            this.$el.classList.remove('active-mobile-menu');
-        },
-        updateSlideClass(className, slideIndex) {
-
-            // Remove the class from all the links
-            [this.navLinks, this.slides].forEach(removeClass);
-
-            // Then add the class to the active link
-            [this.navLinks, this.slides].forEach(addClass);
-
-            function removeClass(set) {
-                set.forEach(item => item.classList.remove(className));
-            }
-            function addClass(set) {
-                set[slideIndex].classList.add(className);
-            }
         }
     }
 }
@@ -284,7 +362,7 @@ export default {
 
 <style lang='scss'>
 
-    $color-primary: black;
+    $color-primary: blue;
 
     *, 
     *:after, 
@@ -302,20 +380,39 @@ export default {
         }
     }
     
-    #slides nav + article {
-        position: absolute;
+    #slides.active-grid-menu {
+        nav ul { display: none; }
+        article {
+            display: grid;
+            background: rgba(black, 0.1);
+            justify-content: center;
+            align-content: center;
+            section {
+                width: 100vw;
+                transform-origin: 0 0;
+                cursor: pointer;
+                * {
+                    pointer-events: none;
+                }
+            }
+        }
+    }
+    
+    #slides article {
+        position: relative;
         left: 0;
         top: 0;
         width: 100%;
-        height: 100%;
+        height: 100vh;
         overflow: hidden;
     }
 
     section {
         position: relative;
         width: 100%;
-        height: 100%;
+        height: inherit;
         overflow: hidden;
+        will-change: transform;
     }
 
     nav {
@@ -335,28 +432,6 @@ export default {
             right: 0;
             left: 0;
             width: 100%;
-        }
-        &.position-right {
-            right: 0;
-            text-align: right;
-            li .nav-slide-name {
-                right: 85%;
-                @media (max-width: 767px) {
-                    right: initial;
-                }
-            }
-            li .nav-slide-name {
-                justify-content: flex-end;
-            }
-        }
-        &.position-left {
-            left: 0;
-            .nav-slide-name {
-                left: 85%;
-            }
-            li .nav-slide-name {
-                justify-content: flex-start;
-            }
         }
         .nav-icon {
             position: absolute;
@@ -380,6 +455,46 @@ export default {
                 display: none;
             }
         }
+    }
+
+    nav.position-right {
+        right: 0;
+        text-align: right;
+        li .nav-slide-name {
+            right: 85%;
+            @media (max-width: 767px) {
+                right: initial;
+            }
+        }
+        li .nav-slide-name {
+            justify-content: flex-end;
+        }
+    }
+
+    nav.position-left {
+        left: 0;
+        .nav-slide-name {
+            left: 85%;
+        }
+        li .nav-slide-name {
+            justify-content: flex-start;
+        }
+    }
+    
+    nav .nav-grid-view {
+        position: absolute;
+        fill: black;
+        top: 0;
+        width: 30%;
+        top: 2.5vh;
+        cursor: pointer;
+        @media (max-width: 767px) {
+            display: none;
+        }
+    }
+
+    nav .nav-grid-view:hover {
+        fill: $color-primary;
     }
 
     nav ul {
@@ -420,7 +535,7 @@ export default {
         width: 100%;
         display: block;
         margin: 0;
-        height: 2vw;
+        height: 2.5vh;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -455,13 +570,13 @@ export default {
     }
 
     nav ul li.active:hover .nav-indicator {
-        border-color: gray;
-        background: gray;
+        border-color: $color-primary;
+        background: $color-primary;
     }
 
     nav ul li:hover .nav-indicator {
-        background: gray;
-        border-color: gray;
+        background: $color-primary;
+        border-color: $color-primary;
     }
 
     nav ul li .nav-slide-name {
