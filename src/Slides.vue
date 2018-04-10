@@ -417,9 +417,6 @@ export default {
                 transform-origin: 0 0;
                 box-shadow: 0 4vw 12vw rgba(black, 0.6);
                 cursor: pointer;
-                &:hover {
-
-                }
                 * {
                     pointer-events: none;
                 }
