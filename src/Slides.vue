@@ -73,7 +73,8 @@ export default {
             activeMenuClass:    'active-mobile-menu',
             activeGridClass:    'active-grid-menu',
             keyCodes:           { UP: 38, DOWN: 40 },
-            slideEase:          Sine.easeInOut
+            slideEase:          Sine.easeInOut,
+            isMobile:           false
         };
     },
     computed: {
@@ -103,7 +104,7 @@ export default {
         this.currentSlide       = this.slides[initialId];
         
         // Invoke the rest of the setup functions and go to the current slide
-        this.addSlideIndex().addEvents().goToSlide(this.currentSlide);
+        this.addSlideIndex().addEvents().ifMobile().goToSlide(this.currentSlide);
     },
     methods: {
         addEvents() {
@@ -129,8 +130,8 @@ export default {
             const container = new Hammer(this.slidesContainer);
             container.get('pan').set({ direction: Hammer.DIRECTION_ALL });
             container.on('panleft panright panup pandown tap press', event => {
-                if (event.type === 'panup') this.goToNextSlide();
-                if (event.type === 'pandown') this.goToPrevSlide();
+                if (event.type === 'panup') { this.goToNextSlide(); }
+                if (event.type === 'pandown') { this.goToPrevSlide(); }
             });
 
             return this;
@@ -231,6 +232,9 @@ export default {
 
             // Update the window hash url
             window.location.hash = '#' + this.currentSlide.id;
+
+            // Only resize the window if on Mobile Device, has a glitch
+            if (this.isMobile) this.resize();
         },
 
         onResize() {
@@ -381,6 +385,20 @@ export default {
                     setTimeout(() => throttle = false, wait);
                 }
             };
+        },
+        ifMobile() {
+            if( navigator.userAgent.match(/Android/i) ||
+                navigator.userAgent.match(/webOS/i) ||
+                navigator.userAgent.match(/iPhone/i) ||
+                navigator.userAgent.match(/iPod/i) ||
+                navigator.userAgent.match(/iPad/i) ||
+                navigator.userAgent.match(/BlackBerry/i) ||
+                navigator.userAgent.match(/IEMobile/i) ||
+                navigator.userAgent.match(/Opera Mini/i)
+            ) {
+                this.isMobile = true;
+            }
+            return this;
         }
     }
 }

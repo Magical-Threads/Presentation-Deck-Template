@@ -1,8 +1,7 @@
 <template>
     <div id='app'>
         <slides nav-position='right' :slide-duration='1'>
-
-            <!-- Demo HTML -->
+           <!-- Demo HTML -->
             <section id='welcome'>
                 <img src='./assets/images/a.jpg'>
                 <h2>Welcome</h2>
@@ -55,8 +54,7 @@ export default {
 </script>
 
 <style lang='scss'>
-
-    /* All Demo CSS Below, Basic Layout */
+     /* All Demo CSS Below, Basic Layout */
     section { padding: 5vw; background: white; }
     section h2 { font-size: 5vw; }
     section[data-i='1'] img { float: left; width: 40%; margin-right: 5%; }
