@@ -54,7 +54,8 @@ export default {
         },
         scripts: {
             type:                   Function,
-            default:                function() { }
+            default:                function({ currentSlide, slideDuration }) 
+                                    { return { slideStart() {}, slideEnd() {} } }
         },
         slideDuration: {
             type:                   Number,

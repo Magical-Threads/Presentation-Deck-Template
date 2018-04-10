@@ -1,6 +1,6 @@
 <template>
     <div id='app'>
-        <slides nav-position='right' :scripts='scripts' :slide-duration='1'>
+        <slides nav-position='right' :slide-duration='1'>
 
             <!-- Demo HTML -->
             <section id='welcome'>
@@ -34,7 +34,6 @@
 <script>
 
 import Slides from './Slides.vue';
-import Scripts from './scripts';
 
 export default {
     name: 'App',
@@ -46,11 +45,9 @@ export default {
             return require('./assets/images/' + img);
         }
     },
+    // Demo Data Below
     data() {
-
-        // Demo Data Below
         return {
-            scripts: Scripts,
             imgs: [ 'a.jpg', 'b.jpg', 'c.jpg' ]
         };
     }
