@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { TweenMax } from 'gsap';
+import { TweenMax, TimelineMax } from 'gsap';
 import hammerjs from 'hammerjs';
 import 'imports-loader?define=>false!gsap/ScrollToPlugin';
 
@@ -50,7 +50,7 @@ export default {
     props: {
         navPosition: {
             type:                   String,
-            default:                'right' // values: [ 'left', 'right' ]
+            default:                'right'
         },
         scripts: {
             type:                   Function,
@@ -72,8 +72,7 @@ export default {
             activeMenuClass:    'active-mobile-menu',
             activeGridClass:    'active-grid-menu',
             keyCodes:           { UP: 38, DOWN: 40 },
-            slideEase:          Sine.easeInOut,
-            localDuration:      this.slideDuration
+            slideEase:          Sine.easeInOut
         };
     },
     computed: {
@@ -102,6 +101,7 @@ export default {
         const initialId         = storedId > this.slides.length ? this.slides.length - 1 : storedId;
         this.currentSlide       = this.slides[initialId];
         
+        // Invoke the rest of the setup functions and go to the current slide
         this.addSlideIndex().addEvents().goToSlide(this.currentSlide);
     },
     methods: {
@@ -269,7 +269,7 @@ export default {
             
             // If not in grid view, return, abort
             if (!this.$el.classList.contains(this.activeGridClass)) return;
-            event.target.classList.add([this.activeClass, this.completeClass]);
+            event.target.classList.add(this.activeClass, this.completeClass);
             this.goToSlide(event.target, 0.001).destroyGrid();
         },
 
@@ -281,16 +281,35 @@ export default {
             var count     = this.slides.length;
             var cols      = Math.ceil(Math.sqrt(count));
             var rows      = Math.round(Math.sqrt(count));
-            var size      = 100/cols;
-            var scale     = size/100;
+            var cell      = 100/cols;
+            var gap       = cell * 0.2/100;
+            var scale     = (cell/100) - gap;
+            var size      = cell - ((gap * 100) / 2);
+            var x         = (gap * 100);
+            var y         = (gap * 100);
 
             this.$el.classList.add(this.activeGridClass);
             this.slides.forEach(slide => {
                 slide.style.height = this.pageHeight + 'px';
-                slide.style.transform = `scale(${scale})`;
+                slide.style.transform = `scale(${scale}) translate(${x}%, ${y}%)`;
             });
             this.slidesContainer.style.gridTemplateColumns  = `repeat(${cols}, ${size}%)`;
             this.slidesContainer.style.gridTemplateRows     = `repeat(${rows}, ${size}%)`;
+
+            //----------
+
+            // var timeline  = new TimelineMax({ paused: true, onStart() { console.log( scale )} });
+            // timeline
+            // .set(this.slidesContainer, {
+            //     gridTemplateColumns : `repeat(${cols}, ${cell}%)`,
+            //     gridTemplateRows    : `repeat(${rows}, ${cell}%)`
+            // })
+            // .to(this.slides, 0.3, {
+            //     height: this.pageHeight + 'px',
+            //     scale: scale,
+            //     ease: Power4.easeInOut
+            // })
+            // .play();
         },
 
         destroyGrid() {
@@ -300,6 +319,12 @@ export default {
                 slide.style.position = 'relative';
                 slide.style.zIndex = 'initial';
             });
+            // ---------
+            // TweenMax.to(this.slides, 0.3, {
+            //     scale: 1,
+            //     position: 'relative',
+            //     zIndex: 'initial'
+            // });
         },  
 
         onNavLinkClick(event) {
@@ -382,15 +407,19 @@ export default {
     
     #slides.active-grid-menu {
         nav ul { display: none; }
+        background: #222;
         article {
             display: grid;
-            background: rgba(black, 0.1);
             justify-content: center;
             align-content: center;
             section {
                 width: 100vw;
                 transform-origin: 0 0;
+                box-shadow: 0 4vw 12vw rgba(black, 0.6);
                 cursor: pointer;
+                &:hover {
+
+                }
                 * {
                     pointer-events: none;
                 }
@@ -475,6 +504,9 @@ export default {
         left: 0;
         .nav-slide-name {
             left: 85%;
+            @media (max-width: 767px) {
+                left: 0;
+            }
         }
         li .nav-slide-name {
             justify-content: flex-start;

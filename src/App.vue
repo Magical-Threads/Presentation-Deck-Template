@@ -3,9 +3,9 @@
         <slides nav-position='right' :scripts='scripts' :slide-duration='1'>
 
             <!-- Demo HTML -->
-            <section>
+            <section id='welcome'>
                 <img src='./assets/images/a.jpg'>
-                <h2>Slide 1</h2>
+                <h2>Welcome</h2>
                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad veritatis numquam expedita quas consequuntur ab dicta hic nostrum commodi consectetur dolores incidunt placeat, doloribus laborum quasi est. Ullam, corrupti expedita!</p>
                 <button class='go-next'>Next</button>
             </section>
@@ -21,8 +21,9 @@
                 </figure>
             </section>
 
-            <!-- Repeat some empty sections -->
+            <!-- Repeat some demo sections -->
             <section v-for='img in imgs' :style='{ background: "url("  + getImage(img) + ") 50% 50%/cover" }'></section>
+            <section v-for='n in 3'>{{n + 6}}</section>
 
             <!-- End Demo HTML -->
             
@@ -77,7 +78,7 @@ export default {
     $slide-delay: 1s;  
 
     /* Example transition states */
-    section[data-i='1'] {
+    #welcome {
         &.active * {
             opacity: 0;
         }
@@ -129,7 +130,7 @@ export default {
     }
 
     /* Color random sections for demo */
-    @for $s from 4 through 17 {
+    @for $s from 4 through 9 {
         section:nth-of-type(#{$s}) {
             display: flex; 
             align-items: center;
