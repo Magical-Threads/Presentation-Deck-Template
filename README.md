@@ -9,11 +9,12 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 
 
 ####  Structure
+ID attribute is optional, but not required. If ID is used, it will be the name of the slide in the navigation menu.
 ```
 <slides nav-position='right' :scripts='scripts' :slide-duration='1'>
     <section></section>
     <section></section>
-    <section id="id-is-optional-for-anchoring-and-nav-menu-naming"> Your Content </section>
+    <section id="is-optional"> Your Content </section>
     <section></section>
     <section></section>
 </slides>
@@ -24,12 +25,12 @@ Each ```<section>``` cycles through the following CSS classes
 
 ##### Entering State CSS
     1. [null]
-    2. ['*active*']
-    3. ['*active*', '*complete*']
+    2. ['**active**']
+    3. ['**active**', '**complete**']
 
 ##### Leaving State CSS
-    1. ['*active*', '*complete*']
-    2. ['*complete*']
+    1. ['**active**', '**complete**']
+    2. ['**complete**']
     3. [null]
 
 ## scripts.js
