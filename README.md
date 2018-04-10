@@ -6,18 +6,14 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 - [nav-position] Accepts either "right" or "left", default "right"
 - [scripts] Custom callback functions for animating or anything else
 - [slide-duration] A number in seconds for slide transition duration, default 1
-- [id] Optional ID for anchoring
+
 
 ####  Structure
 ```
 <slides nav-position='right' :scripts='scripts' :slide-duration='1'>
     <section></section>
     <section></section>
-
-    <section id="id-is-optional" class="active complete">
-        // Your Content
-    </section>
-
+    <section id="id-is-optional-for-anchoring-and-nav-menu-naming"> Your Content </section>
     <section></section>
     <section></section>
 </slides>
@@ -26,12 +22,15 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 #### CSS State
 Each ```<section>``` cycles through the following CSS classes
 
-##### Entering State
-    "" -> "active" –> "active complete"
+##### Entering State CSS
+    1. [null]
+    2. ['*active*']
+    3. ['*active*', '*complete*']
 
-##### Leaving State
-    "active complete" -> "complete" –> "" 
-
+##### Leaving State CSS
+    1. ['*active*', '*complete*']
+    2. ['*complete*']
+    3. [null]
 
 ## scripts.js
 #### Global variables available in scripts.js
