@@ -3,9 +3,9 @@ Presentation deck using Vue.js "Webpack Simple", GSAP and Hammer.js. Copy or clo
 
 ## App.vue
 #### Attributes for ```<slides>``` component
-- [nav-position] Accepts either "right" or "left", default "right"
-- [scripts] Custom callback functions for animating or anything else
-- [slide-duration] A number in seconds for slide transition duration, default 1
+- [**nav-position**] Accepts either "right" or "left", default "right"
+- [**scripts**] Custom callback functions for animating or anything else
+- [**slide-duration**] A number in seconds for slide transition duration, default 1
 
 
 ####  Structure
@@ -24,14 +24,14 @@ ID attribute is optional, but not required. If ID is used, it will be the name o
 Each ```<section>``` cycles through the following CSS classes
 
 ##### Entering State CSS
-    1. [null]
-    2. ['**active**']
-    3. ['**active**', '**complete**']
+   1. null
+   2. **active**
+   3. **active**, **complete**
 
 ##### Leaving State CSS
-    1. ['**active**', '**complete**']
-    2. ['**complete**']
-    3. [null]
+   1. **active**, **complete**
+   2. **complete**
+   3. null
 
 ## scripts.js
 #### Global variables available in scripts.js
