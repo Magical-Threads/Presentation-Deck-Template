@@ -457,7 +457,6 @@ export default {
         width: 100%;
         height: inherit;
         overflow: hidden;
-        will-change: transform;
     }
 
     nav {

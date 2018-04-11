@@ -1,9 +1,10 @@
 <template>
     <div id='app'>
-        <slides nav-position='right' :slide-duration='1'>
+        <slides nav-position='right' :slide-duration='0.75'>
+           
            <!-- Demo HTML -->
             <section id='welcome'>
-                <img src='./assets/images/a.jpg'>
+                <img src='./assets/images/1.jpg'>
                 <h2>Welcome</h2>
                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad veritatis numquam expedita quas consequuntur ab dicta hic nostrum commodi consectetur dolores incidunt placeat, doloribus laborum quasi est. Ullam, corrupti expedita!</p>
                 <button class='go-next'>Next</button>
@@ -21,9 +22,7 @@
             </section>
 
             <!-- Repeat some demo sections -->
-            <section v-for='img in imgs' :style='{ background: "url("  + getImage(img) + ") 50% 50%/cover" }'></section>
-            <section v-for='n in 3'>{{n + 6}}</section>
-
+            <section v-for='(img, index) in sectionImages' :style='{ background: img }'>{{index + 4}}</section>
             <!-- End Demo HTML -->
             
         </slides>
@@ -44,10 +43,20 @@ export default {
             return require('./assets/images/' + img);
         }
     },
+    computed: {
+        sectionImages() {
+            const images = [];
+            for ( let i = 1; i <= 22; i++) {
+                let file = i + '.jpg';
+                images.push( `url(${ this.getImage(file) }) 50% 50%/cover`);
+            }
+            return images;
+        }
+    },
     // Demo Data Below
     data() {
         return {
-            imgs: [ 'a.jpg', 'b.jpg', 'c.jpg' ]
+            imgs: [ '1.jpg', '2.jpg', '3.jpg' ]
         };
     }
 }
@@ -60,7 +69,7 @@ export default {
     section[data-i='1'] img { float: left; width: 40%; margin-right: 5%; }
     #anchored-section { background: gold;  position: relative; z-index: 1; }
     #anchored-section * { color: gold; border-color: gold; }
-    #anchored-section:before { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: url('./assets/images/1.jpg') 50% 50%/cover; mix-blend-mode: difference; z-index: -1; }
+    #anchored-section:before { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: url('./assets/images/1.jpg') 50% 50%/cover;  z-index: -1; mix-blend-mode: difference;}
     section[data-i='3'] figure { display: flex; align-items: center; justify-content: space-between;; margin: 0; height: 100%; }
     section[data-i='3'] figure img { width: 31.333%; height: auto; margin: 0 1%; }
 
@@ -70,7 +79,7 @@ export default {
         --------------------------------------------------------------
     */
 
-    $slide-delay: 1s;  
+    $slide-delay: 0.75s;  
 
     /* Example transition states */
     #welcome {
@@ -125,14 +134,31 @@ export default {
     }
 
     /* Color random sections for demo */
-    @for $s from 4 through 9 {
+    @for $s from 4 through 100 {
         section:nth-of-type(#{$s}) {
             display: flex; 
             align-items: center;
             justify-content: center;
-            font-size: 10vw;
+            font-size: 6vw;
+            font-weight: bold;
             $r: random(255); $g: random(255); $b: random(255);
-            background: rgba($r, $g, $b, 1);
+            color: rgba($r, $g, $b, 1);
+            position: relative;
+            z-index: 1;
+            &:before {
+                content: '';
+                position: absolute;
+                top: 50%; left: 50%;
+                width: 14vw;
+                height: 14vw;
+                background: white;
+                border-radius: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transform: translate(-50%, -50%);
+                z-index: -1;
+            }
         }
     }
     
