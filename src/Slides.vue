@@ -217,6 +217,8 @@ export default {
             // And assign the function reference to "slideScripts", from the scripts.js file
             this.slideScripts = this.scripts({ currentSlide, slideDuration });
             this.slideScripts.slideStart();
+
+            this.fetchLazy(currentSlide);
         },
 
         onSlideEnd(currentIndex, currentSlide) {
@@ -235,6 +237,18 @@ export default {
 
             // Only resize the window if on Mobile Device, has a glitch
             if (this.isMobile) this.resize();
+        },
+
+        fetchLazy(currentSlide) {
+
+            const slide = currentSlide;
+            const lazyImages = Array.from(slide.querySelectorAll('[data-lazy]'));
+
+            lazyImages.forEach(image => {
+                image.style.backgroundImage = `url(${image.dataset.lazy})`;
+            });
+
+            console.log('end', {currentSlide});
         },
 
         onResize() {

@@ -17,12 +17,17 @@
             </section>
             <section>
                 <figure>
-                    <img v-for='img in imgs' :src='getImage(img)'>
+                    <img v-for='img in 3' :src='getImage(img)'>
                 </figure>
             </section>
 
             <!-- Repeat some demo sections -->
-            <section v-for='(img, index) in sectionImages' :style='{ background: img }'>{{index + 4}}</section>
+            <section 
+                v-for='(img, index) in 15'>
+                    {{index}}
+                    <figure :data-lazy='getImage(img)' :style='getLowImage(img)'></figure>
+                    <!-- <img v-lazy='img'> -->
+                </section>
             <!-- End Demo HTML -->
             
         </slides>
@@ -40,31 +45,40 @@ export default {
     },
     methods: {
         getImage(img) {
-            return require('./assets/images/' + img);
+            return require('./assets/images/' + img + '.jpg');
+        },
+        getLowImage(img) {
+            return {
+                backgroundImage: `url(${require('./assets/images/low-' + img + '.jpg')})`
+            };
         }
     },
     computed: {
-        sectionImages() {
-            const images = [];
-            for ( let i = 1; i <= 22; i++) {
-                let file = i + '.jpg';
-                images.push( `url(${ this.getImage(file) }) 50% 50%/cover`);
-            }
-            return images;
-        }
-    },
-    // Demo Data Below
-    data() {
-        return {
-            imgs: [ '1.jpg', '2.jpg', '3.jpg' ]
-        };
+        // sectionImages() {
+        //     const images = [];
+        //     for ( let i = 4; i <= 15; i++) {
+        //         let file = i + '.jpg';
+        //         // images.push( `url(${ this.getImage(file) }) 50% 50%/cover`);
+        //         images.push(this.getImage(file));
+        //     }
+        //     return images;
+        // },
+        // getLowImage() {
+        //     const images = [];
+        //     for ( let i = 4; i <= 15; i++) {
+        //         let file = 'low-' + i + '.jpg';
+        //         images.push( `url(${ this.getImage(file) }) 50% 50%/cover`);
+        //         // images.push(this.getImage(file));
+        //     }
+        //     return images;
+        // }
     }
 }
 </script>
 
 <style lang='scss'>
      /* All Demo CSS Below, Basic Layout */
-    section { padding: 5vw; background: white; }
+    section:nth-child(n-3) { padding: 5vw; background: white; }
     section h2 { font-size: 5vw; }
     section[data-i='1'] img { float: left; width: 40%; margin-right: 5%; }
     #anchored-section { background: gold;  position: relative; z-index: 1; }
@@ -112,13 +126,13 @@ export default {
     /* Example transition states */
     section[data-i='3'] {
         &.active img {
-            transition: all 0.5s ease-in 0s;
+            transition: all 0s ease-in 0s;
             transform: translateY(15%);
-            clip-path: inset(0 0 100% 0);
+            opacity: 0;
         }
         &.active.complete img {
             transition: all 0.5s ease-out;
-            clip-path: inset(0 0 0 0);
+            opacity: 1;
             transform: translateY(0%);
             @for $i from 1 through 3 {
                 &:nth-of-type(#{$i}) {
@@ -129,37 +143,16 @@ export default {
         &.complete img {
             transition: all 0s ease-in $slide-delay;
             transform: translateY(15%);
-            clip-path: inset(0 0 100% 0);
+            opacity: 0;
         }
     }
 
-    /* Color random sections for demo */
-    @for $s from 4 through 100 {
-        section:nth-of-type(#{$s}) {
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            font-size: 6vw;
-            font-weight: bold;
-            $r: random(255); $g: random(255); $b: random(255);
-            color: rgba($r, $g, $b, 1);
-            position: relative;
-            z-index: 1;
-            &:before {
-                content: '';
-                position: absolute;
-                top: 50%; left: 50%;
-                width: 14vw;
-                height: 14vw;
-                background: white;
-                border-radius: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transform: translate(-50%, -50%);
-                z-index: -1;
-            }
-        }
+    section:nth-child(n+4) figure {
+        position: absolute;
+        margin: 0;
+        background: transparent 50% 50%/cover;
+        top: 0; right: 0; bottom: 0; left: 0;
+        pointer-events: none;
     }
     
 </style>
